@@ -1,0 +1,37 @@
+{
+  "name": "commitscanner",
+  "displayName": "Commit Scanner",
+  "description": "Scan your tracked git files for secret keys and sensitive information.",
+  "version": "0.1.0",
+  "publisher": "KennethNg",
+  "repository": {
+    "url": "https://github.com/kennething/commit-scanner"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.90.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@typescript-eslint/parser": "^8.31.1",
+    "typescript": "^5.8.3"
+  },
+  "extensionDependencies": [
+    "vscode.git"
+  ]
+}
