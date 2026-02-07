@@ -133,6 +133,7 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
+  // * commands
   context.subscriptions.push(
     vscode.commands.registerCommand("gitgerbil.setScannedFileTypes", commands.handleScannedFileTypes),
     vscode.commands.registerCommand("gitgerbil.enableFilePathScanning", commands.enableFilePathScanning),
