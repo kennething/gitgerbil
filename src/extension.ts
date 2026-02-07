@@ -4,6 +4,7 @@ import * as commands from "./commands";
 import * as vscode from "vscode";
 
 const defaultScannedFiles = ["ts", "js", "jsx", "tsx", "vue", "py", "rb", "go", "java", "php", "cs", "cpp", "c", "h", "rs", "html", "css", "scss", "less", "json", "yaml", "yml"] as const;
+const ignoredFiles = new Set<string>(["package-lock.json", "yarn.lock", "pnpm-lock.yaml", "Cargo.lock", "Gemfile.lock", "go.sum"]);
 const scannedFiles = new Set<string>(defaultScannedFiles);
 const scanningOptions = {
   filePathScanning: true,
@@ -39,8 +40,8 @@ function createDiagnostic(message: string, severity: vscode.DiagnosticSeverity, 
  * @param uri The URI of the file to check.
  */
 async function checkFile(repo: Repository, uri: vscode.Uri): Promise<void> {
+  if (ignoredFiles.has(uri.fsPath.split("/").pop() ?? "")) return diagnostics.delete(uri);
   if ((await repo.checkIgnore([uri.fsPath])).size) return diagnostics.delete(uri);
-  console.log(uri.fsPath);
   // ? if not a dotfile and the extension isnt in scannedFiles
   if (!/^\.[^./\\]+$/.test(uri.fsPath.split("/").pop() ?? "") && !scannedFiles.has(/^[^.]+\.([^.]+)$/.exec(uri.fsPath)?.[1] ?? "")) return diagnostics.delete(uri);
 
