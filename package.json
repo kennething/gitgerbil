@@ -1,9 +1,10 @@
 {
   "name": "gitgerbil",
   "displayName": "GitGerbil",
-  "description": "Scan your tracked git files for secret keys and sensitive information.",
-  "version": "0.1.0",
+  "description": "Scan your project for potential secrets, sensitive information, and less-than-ideal files that you probably shouldn't commit.",
+  "version": "0.1.1",
   "publisher": "KennethNg",
+  "icon": "./src/assets/icon.png",
   "repository": {
     "url": "https://github.com/kennething/gitgerbil"
   },
@@ -11,7 +12,7 @@
     "vscode": "^1.90.0"
   },
   "categories": [
-    "Other"
+    "Linters"
   ],
   "activationEvents": [
     "onStartupFinished"
