@@ -1,11 +1,11 @@
 {
-  "name": "commitscanner",
-  "displayName": "Commit Scanner",
+  "name": "gitgerbil",
+  "displayName": "GitGerbil",
   "description": "Scan your tracked git files for secret keys and sensitive information.",
   "version": "0.1.0",
   "publisher": "KennethNg",
   "repository": {
-    "url": "https://github.com/kennething/commit-scanner"
+    "url": "https://github.com/kennething/gitgerbil"
   },
   "engines": {
     "vscode": "^1.90.0"
@@ -33,5 +33,86 @@
   },
   "extensionDependencies": [
     "vscode.git"
-  ]
+  ],
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "GitGerbil Settings",
+      "properties": {
+        "gitgerbil.scannedFileTypes": {
+          "type": "array",
+          "default": [
+            "ts",
+            "js",
+            "jsx",
+            "tsx",
+            "vue",
+            "py",
+            "rb",
+            "go",
+            "java",
+            "php",
+            "cs",
+            "cpp",
+            "c",
+            "h",
+            "rs",
+            "html",
+            "css",
+            "scss",
+            "less",
+            "json",
+            "yaml",
+            "yml"
+          ],
+          "description": "List of file extensions that will be scanned if any scanning options are enabled. Dotfiles are automatically included and do not need to be specified here."
+        },
+        "gitgerbil.enableFilePathScanning": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable file path scanning in tracked git files. If enabled, a warning will be shown in files that are tracked, but probably shouldn't be."
+        },
+        "gitgerbil.enableSecretScanning": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable secret scanning in tracked git files. If enabled, errors will be shown where potential secrets are found."
+        },
+        "gitgerbil.enableCommentScanning": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable comment scanning in tracked git files. If enabled, info hints will be shown where TODOs, FIXMEs, and other common comment tags are found."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "gitgerbil.setScannedFileTypes",
+        "title": "GitGerbil: Set Scanned File Types"
+      },
+      {
+        "command": "gitgerbil.enableFilePathScanning",
+        "title": "GitGerbil: Enable File Path Scanning"
+      },
+      {
+        "command": "gitgerbil.disableFilePathScanning",
+        "title": "GitGerbil: Disable File Path Scanning"
+      },
+      {
+        "command": "gitgerbil.enableSecretScanning",
+        "title": "GitGerbil: Enable Secret Scanning"
+      },
+      {
+        "command": "gitgerbil.disableSecretScanning",
+        "title": "GitGerbil: Disable Secret Scanning"
+      },
+      {
+        "command": "gitgerbil.enableCommentScanning",
+        "title": "GitGerbil: Enable Comment Scanning"
+      },
+      {
+        "command": "gitgerbil.disableCommentScanning",
+        "title": "GitGerbil: Disable Comment Scanning"
+      }
+    ]
+  }
 }
