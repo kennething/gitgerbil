@@ -48,6 +48,7 @@ export function scanSecretKeys(content: string): [range: LineRange, message: str
     /sk_test_[0-9a-zA-Z]{24}/g, // * stripe
     /A[A-Z]{3}[0-9A-Z]{16}/g, // * aws
     /AIza[0-9A-Za-z-_]{35}/g, // * google
+    // gitgerbil-ignore-line
     /-----BEGIN PRIVATE KEY-----/g, // * private key
     /ghp_[0-9a-zA-Z]{36}/g, // * github pat
     /github_pat_[0-9a-zA-Z]{40}/g, // * github pat
@@ -59,6 +60,9 @@ export function scanSecretKeys(content: string): [range: LineRange, message: str
   outer: for (const pattern of patterns) {
     for (const match of content.matchAll(pattern)) {
       const startIndex = match.index;
+      const precedingLines = content.slice(0, startIndex).split("\n");
+      if (precedingLines[precedingLines.length - 2].includes("gitgerbil-ignore-line")) continue;
+
       const matchedString = match[0];
       const linesUpToMatch = content.slice(0, startIndex).split("\n");
 
