@@ -29,7 +29,7 @@ function createDiagnostic(message: string, severity: vscode.DiagnosticSeverity, 
   const range = new vscode.Range(new vscode.Position(...defaultRange[0]), new vscode.Position(...defaultRange[1]));
 
   const diagnostic = new vscode.Diagnostic(range, message, severity);
-  diagnostic.source = "Commit Scanner";
+  diagnostic.source = "GitGerbil";
   return diagnostic;
 }
 
@@ -71,7 +71,7 @@ export function activate(context: vscode.ExtensionContext) {
   const gitExtension = vscode.extensions.getExtension<GitExtension>("vscode.git")?.exports;
   if (!gitExtension) throw new Error("Git extension not found");
 
-  diagnostics = vscode.languages.createDiagnosticCollection("commit-scanner");
+  diagnostics = vscode.languages.createDiagnosticCollection("gitgerbil");
   context.subscriptions.push(diagnostics);
 
   const git = gitExtension.getAPI(1);
