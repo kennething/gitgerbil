@@ -39,37 +39,39 @@ export type LineRange = [from: LinePosition, to: LinePosition];
  * @param content The content to scan for secret keys.
  * @returns An array of tuples containing the range of the detected secret key and the message.
  */
-export function scanSecretKeys(content: string): [range: LineRange, message: string][] {
+export function scanSecretKeys(content: string[]): [range: LineRange, message: string][] {
   const results: [range: LineRange, message: string][] = [];
 
   const patterns = [
-    /[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g, // * jwt
-    /sk_live_[0-9a-zA-Z]{24}/g, // * stripe
-    /sk_test_[0-9a-zA-Z]{24}/g, // * stripe
-    /A[A-Z]{3}[0-9A-Z]{16}/g, // * aws
-    /AIza[0-9A-Za-z-_]{35}/g, // * google
+    /[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/, // * jwt
+    /sk_live_[0-9a-zA-Z]{24}/, // * stripe
+    /sk_test_[0-9a-zA-Z]{24}/, // * stripe
+    /A[A-Z]{3}[0-9A-Z]{16}/, // * aws
+    /AIza[0-9A-Za-z-_]{35}/, // * google
     // gitgerbil-ignore-line
-    /-----BEGIN PRIVATE KEY-----/g, // * private key
-    /ghp_[0-9a-zA-Z]{36}/g, // * github pat
-    /github_pat_[0-9a-zA-Z]{40}/g, // * github pat
-    /sk-[0-9a-zA-Z]{48}/g, // * openai
-    /(?=(?:[A-Za-z0-9_-]*[0-9_-]){4,})[A-Za-z0-9_-]{20,}={1,2}/g, // generic base64 pattern
-    /(?=(?:[0-9a-fA-F]*[0-9]){4,})[0-9a-fA-F]{16,}/g // generic hex pattern
-  ];
+    /-----BEGIN PRIVATE KEY-----/, // * private key
+    /ghp_[0-9a-zA-Z]{36}/, // * github pat
+    /github_pat_[0-9a-zA-Z]{40}/, // * github pat
+    /sk-[0-9a-zA-Z]{48}/, // * openai
+    /(?=(?:[A-Za-z0-9_-]*[0-9_-]){4,})[A-Za-z0-9_-]{20,}={1,2}/, // generic base64 pattern
+    /(?=(?:[0-9a-fA-F]*[0-9]){4,})[0-9a-fA-F]{16,}/ // generic hex pattern
+  ] as const;
 
-  outer: for (const pattern of patterns) {
-    for (const match of content.matchAll(pattern)) {
-      const startIndex = match.index;
-      const precedingLines = content.slice(0, startIndex).split("\n");
-      if (precedingLines[precedingLines.length - 2].includes("gitgerbil-ignore-line")) continue;
+  for (let i = 0; i < content.length; i++) {
+    const line = content[i];
+
+    patternMatch: for (const pattern of patterns) {
+      const match = pattern.exec(line);
+      if (!match) continue;
 
       const matchedString = match[0];
-      const linesUpToMatch = content.slice(0, startIndex).split("\n");
+      const startIndex = match.index;
+      if (content[i - 1]?.includes("gitgerbil-ignore-line")) break patternMatch;
 
-      const startLine = linesUpToMatch.length - 1;
-      const startCol = linesUpToMatch[linesUpToMatch.length - 1].length;
-      const endLine = startLine + matchedString.split("\n").length - 1;
-      const endCol = matchedString.includes("\n") ? matchedString.split("\n").pop()!.length : startCol + matchedString.length;
+      const startLine = i;
+      const startCol = startIndex;
+      const endLine = startLine;
+      const endCol = startIndex + match[0].length;
 
       results.push([
         [
@@ -78,10 +80,9 @@ export function scanSecretKeys(content: string): [range: LineRange, message: str
         ],
         `Potential secret key detected: ${matchedString}`
       ]);
-      break outer;
+      break patternMatch;
     }
   }
-
   return results;
 }
 
@@ -94,9 +95,9 @@ export function checkComments(content: string): [range: LineRange, message: stri
 
   const commentPatterns = [
     /\/\/.*/g, // * singleline comments
-    /\/\*[\s\S]*?\*\//g, // * multiline comments
-    /#.*$/gm, // * python comments
-    /<!--[\s\S]*?-->/g, // * html comments
+    /\/\*[\s\S]*?\*\//gm, // * multiline comments
+    /#.*$/g, // * python comments
+    /<!--[\s\S]*?-->/gm, // * html comments
     /--.*$/gm // * sql comments
   ] as const;
   const commentHints = ["TODO", "FIXME", "HACK", "FIX", "todo", "fixme", "hack", "fix"] as const;
@@ -108,10 +109,11 @@ export function checkComments(content: string): [range: LineRange, message: stri
       if (!usedHint) continue;
 
       const startIndex = match.index;
-      const linesUpToComment = content.slice(0, startIndex).split("\n");
+      const precedingLines = content.slice(0, startIndex).split("\n");
+      if (precedingLines[precedingLines.length - 2].includes("gitgerbil-ignore-line")) continue;
 
-      const startLine = linesUpToComment.length - 1;
-      const startCol = linesUpToComment[linesUpToComment.length - 1].length;
+      const startLine = precedingLines.length - 1;
+      const startCol = precedingLines[precedingLines.length - 1].length;
       const endLine = startLine + comment.split("\n").length - 1;
       const endCol = comment.includes("\n") ? comment.split("\n").pop()!.length : startCol + comment.length;
 

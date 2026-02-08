@@ -1,11 +1,11 @@
 import { checkComments, scanSecretKeys, validateFileName, type LineRange } from "./validate";
-import type { GitExtension, Repository } from "../types/git";
+import type { GitExtension, Repository } from "./types/git";
 import * as commands from "./commands";
 import * as vscode from "vscode";
 
-const defaultScannedFiles = ["ts", "js", "jsx", "tsx", "vue", "py", "rb", "go", "java", "php", "cs", "cpp", "c", "h", "rs", "html", "css", "scss", "less", "json", "yaml", "yml"] as const;
+const defaultScannedFiles = ["ts", "js", "jsx", "tsx", "vue", "py", "rb", "go", "java", "php", "cs", "cpp", "c", "h", "rs", "html", "css", "scss", "less", "json", "yaml", "yml", "md"] as const;
 const ignoredFiles = new Set<string>(["package-lock.json", "yarn.lock", "pnpm-lock.yaml", "Cargo.lock", "Gemfile.lock", "go.sum"]);
-const scannedFiles = new Set<string>(defaultScannedFiles);
+const scannedFiles = new Set<string>();
 const scanningOptions = {
   filePathScanning: true,
   secretScanning: true,
@@ -47,20 +47,22 @@ async function checkFile(repo: Repository, uri: vscode.Uri): Promise<void> {
 
   const buffer = await vscode.workspace.fs.readFile(uri);
   const content = Buffer.from(buffer).toString("utf-8");
+  const contentLines = content.split("\n");
 
   const fileDiagnostics: vscode.Diagnostic[] = [];
+  const fileIsIgnored = contentLines[0]?.includes("gitgerbil-ignore-file");
 
-  if (scanningOptions.filePathScanning) {
+  if (!fileIsIgnored && scanningOptions.filePathScanning) {
     const fileNameViolation = validateFileName(uri);
     if (fileNameViolation) fileDiagnostics.push(createDiagnostic(`${fileNameViolation === 1 ? "File" : "Folder"} name matches a sensitive pattern`, vscode.DiagnosticSeverity.Warning));
   }
-  if (scanningOptions.secretScanning) {
-    const secretResults = scanSecretKeys(content);
+  if (!fileIsIgnored && scanningOptions.secretScanning) {
+    const secretResults = scanSecretKeys(contentLines);
     if (secretResults.length) fileDiagnostics.push(...secretResults.map(([range, message]) => createDiagnostic(message, vscode.DiagnosticSeverity.Error, range)));
   }
-  if (scanningOptions.commentScanning) {
+  if (!fileIsIgnored && scanningOptions.commentScanning) {
     const commentResults = checkComments(content);
-    if (commentResults.length) fileDiagnostics.push(...commentResults.map(([range, message]) => createDiagnostic(message, vscode.DiagnosticSeverity.Hint, range)));
+    if (commentResults.length) fileDiagnostics.push(...commentResults.map(([range, message]) => createDiagnostic(message, vscode.DiagnosticSeverity.Information, range)));
   }
 
   if (fileDiagnostics.length) diagnostics.set(uri, fileDiagnostics);
@@ -83,36 +85,6 @@ export function activate(context: vscode.ExtensionContext) {
   scanningOptions.filePathScanning = scanningConfig.get<boolean>("enableFilePathScanning", scanningOptions.filePathScanning);
   scanningOptions.secretScanning = scanningConfig.get<boolean>("enableSecretScanning", scanningOptions.secretScanning);
   scanningOptions.commentScanning = scanningConfig.get<boolean>("enableCommentScanning", scanningOptions.commentScanning);
-
-  async function checkAllFiles(path: vscode.Uri) {
-    const directory = await vscode.workspace.fs.readDirectory(path);
-
-    for (const [name, type] of directory) {
-      const newPath = vscode.Uri.joinPath(path, name);
-      if (newPath.fsPath.includes("/.git")) continue;
-      if ((await repo.checkIgnore([newPath.fsPath])).size) {
-        diagnostics.delete(newPath);
-        continue;
-      }
-
-      if (type === vscode.FileType.Directory) checkAllFiles(newPath);
-      else checkFile(repo, newPath);
-    }
-  }
-
-  // * check all files on actviation
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  if (workspaceFolder) checkAllFiles(workspaceFolder.uri);
-
-  // * add watchers
-  const watchFn = (uri: vscode.Uri) => {
-    if (uri.path.includes(".gitignore") && workspaceFolder) checkAllFiles(workspaceFolder.uri);
-    else checkFile(repo, uri);
-  };
-  const watcher = vscode.workspace.createFileSystemWatcher("**/*");
-  watcher.onDidChange(watchFn);
-  watcher.onDidCreate(watchFn);
-  context.subscriptions.push(watcher);
 
   // * check settings
   context.subscriptions.push(
@@ -144,4 +116,37 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("gitgerbil.disableSecretScanning", commands.disableSecretScanning),
     vscode.commands.registerCommand("gitgerbil.disableCommentScanning", commands.disableCommentScanning)
   );
+
+  // TODO: add unit tests
+  if (!repo) throw new Error("No git repository found in the workspace");
+
+  async function checkAllFiles(path: vscode.Uri) {
+    const directory = await vscode.workspace.fs.readDirectory(path);
+
+    for (const [name, type] of directory) {
+      const newPath = vscode.Uri.joinPath(path, name);
+      if (newPath.fsPath.includes("/.git")) continue;
+      if ((await repo.checkIgnore([newPath.fsPath])).size) {
+        diagnostics.delete(newPath);
+        continue;
+      }
+
+      if (type === vscode.FileType.Directory) checkAllFiles(newPath);
+      else checkFile(repo, newPath);
+    }
+  }
+
+  // * check all files on actviation
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  if (workspaceFolder) checkAllFiles(workspaceFolder.uri);
+
+  // * add watchers
+  const watchFn = (uri: vscode.Uri) => {
+    if (uri.path.includes(".gitignore") && workspaceFolder) checkAllFiles(workspaceFolder.uri);
+    else checkFile(repo, uri);
+  };
+  const watcher = vscode.workspace.createFileSystemWatcher("**/*");
+  watcher.onDidChange(watchFn);
+  watcher.onDidCreate(watchFn);
+  context.subscriptions.push(watcher);
 }
