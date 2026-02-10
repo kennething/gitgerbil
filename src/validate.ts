@@ -7,7 +7,7 @@ import * as vscode from "vscode";
 export function validateFileName(uri: vscode.Uri): 0 | 1 | 2 {
   const fileName = uri.fsPath.split("/").pop() ?? "";
   const filePatterns = [
-    /.*\.env.*/i,
+    /^\.env(?!\.example).*/i,
     /.*\.key.*/i,
     /.*\.pem.*/i,
     /.*\.p12.*/i,

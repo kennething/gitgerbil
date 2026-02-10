@@ -26,6 +26,8 @@ Also also scans for TODO or FIXME comments in your code and gives a friendly rem
 > \[!TIP\]
 >
 > GitGerbil can have false positives. To ignore a line, add `// gitgerbil-ignore-line` above it (or whatever comment syntax your language uses).
+>
+> Or to ignore an entire file, add `// gitgerbil-ignore-file` at the top of the file.
 
 ## Extension Settings
 
