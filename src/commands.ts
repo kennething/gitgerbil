@@ -1,5 +1,5 @@
-import * as vscode from "vscode";
 import { defaultScannedFiles } from "./extension";
+import * as vscode from "vscode";
 
 export async function handleScannedFileTypes(): Promise<void> {
   const config = vscode.workspace.getConfiguration("gitgerbil");

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Added `enableStrictSecretScanning` setting (and corresponding `toggleStrictSecretScanning` command) that, when enabled, makes secret scanning skip files that don't have a common secret indicator (like "API_SECRET").
+- Added `.svelte`, `.txt`, and `.toml` to the default list of scanned file extensions.
 
 ### Changed
 
@@ -18,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Submitting an empty field when running `gitgerbil.setScannedFileTypes` will now reset to the default list of scanned file types instead of an empty list.
 - Updated the README to mention `gitgerbil-ignore-file`.
 - `.env.example` files will no longer be flagged by file path scanning.
+- Fixed file name detection for files nested in subdirectories.
 
 ### Removed
 
@@ -26,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `gitgerbil.toggleSecretScanning`
   - `gitgerbil.toggleStrictSecretScanning`
   - `gitgerbil.toggleCommentScanning`
+- Removed SQL from comment scanning.
 
 ## [0.1.3] - 2026-02-08
 

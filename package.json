@@ -50,6 +50,7 @@
             "jsx",
             "tsx",
             "vue",
+            "svelte",
             "py",
             "rb",
             "go",
@@ -67,7 +68,9 @@
             "json",
             "yaml",
             "yml",
-            "md"
+            "md",
+            "txt",
+            "toml"
           ],
           "description": "List of file extensions that will be scanned if any scanning options are enabled. Dotfiles are automatically included and do not need to be specified here."
         },

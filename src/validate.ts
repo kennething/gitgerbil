@@ -26,8 +26,8 @@ export function validateFileName(uri: vscode.Uri): 0 | 1 | 2 {
   const fileNameMatches = filePatterns.some((pattern) => pattern.test(fileName));
   if (fileNameMatches) return 1;
 
-  const folderName = uri.fsPath.split("/").slice(-2, -1)[0] ?? "";
-  const folderPatterns = [/node_modules/i, /vendor/i, /dist/i, /build/i, /out/i, /bin/i, /obj/i, /target/i, /logs/i, /tmp/i, /temp/i, /\.?venv/i, /__pycache__/i] as const;
+  const folderName = uri.fsPath.split("/").slice(0, -1).join("/");
+  const folderPatterns = [/node_modules/i, /vendor/i, /dist/i, /build/i, /out/i, /bin/i, /obj/i, /target/i, /logs/i, /tmp/i, /temp/i, /venv/i, /__pycache__/i] as const;
 
   return folderPatterns.some((pattern) => pattern.test(folderName)) ? 2 : 0;
 }
@@ -69,7 +69,7 @@ export function scanSecretKeys(content: string, isStrict = true): [range: LineRa
     /ghp_[0-9a-zA-Z]{36}/, // * github pat
     /github_pat_[0-9a-zA-Z]{40}/, // * github pat
     /sk-[0-9a-zA-Z]{48}/, // * openai
-    /(?=(?:[A-Za-z0-9_-]*[0-9_-]){4,})[A-Za-z0-9_-]{20,}={1,2}/, // generic base64 pattern
+    /(?=(?:[A-Za-z0-9_-]*[0-9_-]){4,})[A-Za-z0-9_-]{20,}={0,2}/, // generic base64 pattern
     /(?=(?:[0-9a-fA-F]*[0-9]){4,})[0-9a-fA-F]{16,}/ // generic hex pattern
   ] as const;
 
@@ -112,9 +112,8 @@ export function checkComments(content: string): [range: LineRange, message: stri
   const commentPatterns = [
     /\/\/.*/g, // * singleline comments
     /\/\*[\s\S]*?\*\//gm, // * multiline comments
-    /#.*$/g, // * python comments
-    /<!--[\s\S]*?-->/gm, // * html comments
-    /--.*$/gm // * sql comments
+    /#.*/g, // * python comments
+    /<!--[\s\S]*?-->/gm // * html comments
   ] as const;
   const commentHints = ["TODO", "FIXME", "HACK", "FIX", "todo", "fixme", "hack", "fix"] as const;
 

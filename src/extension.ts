@@ -3,7 +3,8 @@ import type { API, GitExtension, Repository } from "./types/git";
 import * as commands from "./commands";
 import * as vscode from "vscode";
 
-export const defaultScannedFiles = ["ts", "js", "jsx", "tsx", "vue", "py", "rb", "go", "java", "php", "cs", "cpp", "c", "h", "rs", "html", "css", "scss", "less", "json", "yaml", "yml", "md"] as const;
+// prettier-ignore
+export const defaultScannedFiles = ["ts", "js", "jsx", "tsx", "vue", "svelte", "py", "rb", "go", "java", "php", "cs", "cpp", "c", "h", "rs", "html", "css", "scss", "less", "json", "yaml", "yml", "md", "txt", "toml"] as const;
 const ignoredFiles = new Set<string>(["package-lock.json", "yarn.lock", "pnpm-lock.yaml", "Cargo.lock", "Gemfile.lock", "go.sum"]);
 const scannedFiles = new Set<string>();
 const scanningOptions = {
@@ -155,5 +156,5 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // * check all files on actviation
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  // if (workspaceFolder) await checkAllFiles(workspaceFolder.uri);
+  if (workspaceFolder) await checkAllFiles(workspaceFolder.uri);
 }
