@@ -1,5 +1,5 @@
 import { checkComments, scanSecretKeys, validateFileName, type LineRange } from "./validate";
-import type { GitExtension, Repository } from "./types/git";
+import type { API, GitExtension, Repository } from "./types/git";
 import * as commands from "./commands";
 import * as vscode from "vscode";
 
@@ -43,7 +43,7 @@ async function checkFile(repo: Repository, uri: vscode.Uri): Promise<void> {
   if (ignoredFiles.has(uri.fsPath.split("/").pop() ?? "")) return diagnostics.delete(uri);
   if ((await repo.checkIgnore([uri.fsPath])).size) return diagnostics.delete(uri);
   // ? if not a dotfile and the extension isnt in scannedFiles
-  if (!/^\.[^./\\]+$/.test(uri.fsPath.split("/").pop() ?? "") && !scannedFiles.has(/^[^.]+\.([^.]+)$/.exec(uri.fsPath)?.[1] ?? "")) return diagnostics.delete(uri);
+  if (!/^\.[^./\\]+$/.test(uri.fsPath.split("/").pop() ?? "") && !scannedFiles.has(uri.fsPath.split(".").pop() ?? "")) return diagnostics.delete(uri);
 
   const buffer = await vscode.workspace.fs.readFile(uri);
   const content = Buffer.from(buffer).toString("utf-8");
@@ -69,7 +69,15 @@ async function checkFile(repo: Repository, uri: vscode.Uri): Promise<void> {
   else diagnostics.delete(uri);
 }
 
-export function activate(context: vscode.ExtensionContext) {
+async function waitForGitRepo(git: API, timeout = 5000) {
+  const start = Date.now();
+  while (git.repositories.length === 0) {
+    if (Date.now() - start > timeout) throw new Error("Git repository not detected");
+    await new Promise((res) => setTimeout(res, 100));
+  }
+}
+
+export async function activate(context: vscode.ExtensionContext) {
   const gitExtension = vscode.extensions.getExtension<GitExtension>("vscode.git")?.exports;
   if (!gitExtension) throw new Error("Git extension not found");
 
@@ -77,6 +85,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(diagnostics);
 
   const git = gitExtension.getAPI(1);
+  await waitForGitRepo(git);
   const repo = git.repositories[0];
 
   const scanningConfig = vscode.workspace.getConfiguration("gitgerbil");
@@ -116,9 +125,6 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("gitgerbil.disableSecretScanning", commands.disableSecretScanning),
     vscode.commands.registerCommand("gitgerbil.disableCommentScanning", commands.disableCommentScanning)
   );
-
-  // TODO: add unit tests
-  if (!repo) throw new Error("No git repository found in the workspace");
 
   async function checkAllFiles(path: vscode.Uri) {
     const directory = await vscode.workspace.fs.readDirectory(path);

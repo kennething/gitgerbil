@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] - 2026-02-10
+
+### Changed
+
+- GitGerbil will now wait for up to 5 seconds to detect a git repo when activating instead of immediately failing.
+- File extensions like `.test.ts` will be correctly detected as `.ts` files now and scanned if the base extension is in the list of scanned file types.
+
 ## [0.1.3] - 2026-02-08
 
 ### Added
