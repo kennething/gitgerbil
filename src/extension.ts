@@ -3,7 +3,7 @@ import type { API, GitExtension, Repository } from "./types/git";
 import * as commands from "./commands";
 import * as vscode from "vscode";
 
-const defaultScannedFiles = ["ts", "js", "jsx", "tsx", "vue", "py", "rb", "go", "java", "php", "cs", "cpp", "c", "h", "rs", "html", "css", "scss", "less", "json", "yaml", "yml", "md"] as const;
+export const defaultScannedFiles = ["ts", "js", "jsx", "tsx", "vue", "py", "rb", "go", "java", "php", "cs", "cpp", "c", "h", "rs", "html", "css", "scss", "less", "json", "yaml", "yml", "md"] as const;
 const ignoredFiles = new Set<string>(["package-lock.json", "yarn.lock", "pnpm-lock.yaml", "Cargo.lock", "Gemfile.lock", "go.sum"]);
 const scannedFiles = new Set<string>();
 const scanningOptions = {
@@ -118,12 +118,9 @@ export async function activate(context: vscode.ExtensionContext) {
   // * commands
   context.subscriptions.push(
     vscode.commands.registerCommand("gitgerbil.setScannedFileTypes", commands.handleScannedFileTypes),
-    vscode.commands.registerCommand("gitgerbil.enableFilePathScanning", commands.enableFilePathScanning),
-    vscode.commands.registerCommand("gitgerbil.enableSecretScanning", commands.enableSecretScanning),
-    vscode.commands.registerCommand("gitgerbil.enableCommentScanning", commands.enableCommentScanning),
-    vscode.commands.registerCommand("gitgerbil.disableFilePathScanning", commands.disableFilePathScanning),
-    vscode.commands.registerCommand("gitgerbil.disableSecretScanning", commands.disableSecretScanning),
-    vscode.commands.registerCommand("gitgerbil.disableCommentScanning", commands.disableCommentScanning)
+    vscode.commands.registerCommand("gitgerbil.toggleFilePathScanning", commands.toggleFilePathScanning),
+    vscode.commands.registerCommand("gitgerbil.toggleSecretScanning", commands.toggleSecretScanning),
+    vscode.commands.registerCommand("gitgerbil.toggleCommentScanning", commands.toggleCommentScanning)
   );
 
   async function checkAllFiles(path: vscode.Uri) {

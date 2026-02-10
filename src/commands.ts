@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { defaultScannedFiles } from "./extension";
 
 export async function handleScannedFileTypes(): Promise<void> {
   const config = vscode.workspace.getConfiguration("gitgerbil");
@@ -9,49 +10,39 @@ export async function handleScannedFileTypes(): Promise<void> {
     prompt: "Enter file extensions to scan, separated by commas",
     value: value.join(", "),
     validateInput: (value) => {
+      if (!value) return;
       const extensions = value.split(",").map((ext) => ext.trim());
       if (extensions.some((ext) => !/^[a-zA-Z0-9]+$/.test(ext))) return "File extensions must be alphanumeric and cannot contain dots or spaces";
     }
   });
-  if (!input) return;
+  if (input === undefined) return;
 
-  const newValue = input.split(",").map((ext) => ext.trim());
+  const newValue = input.length === 0 ? (defaultScannedFiles as unknown as string[]) : input.split(",").map((ext) => ext.trim());
+
   await config.update("scannedFileTypes", newValue, vscode.ConfigurationTarget.Global);
   vscode.window.showInformationMessage(`Scanned file extensions updated.`);
 }
 
-export async function enableFilePathScanning(): Promise<void> {
+export async function toggleFilePathScanning(): Promise<void> {
   const config = vscode.workspace.getConfiguration("gitgerbil");
-  await config.update("enableFilePathScanning", true, vscode.ConfigurationTarget.Global);
-  await vscode.window.showInformationMessage("File path scanning enabled.");
+  const newValue = !config.get<boolean>("toggleFilePathScanning");
+
+  await config.update("toggleFilePathScanning", newValue, vscode.ConfigurationTarget.Global);
+  await vscode.window.showInformationMessage(`File path scanning ${newValue ? "enabled" : "disabled"}.`);
 }
 
-export async function enableSecretScanning(): Promise<void> {
+export async function toggleSecretScanning(): Promise<void> {
   const config = vscode.workspace.getConfiguration("gitgerbil");
-  await config.update("enableSecretScanning", true, vscode.ConfigurationTarget.Global);
-  await vscode.window.showInformationMessage("Secret scanning enabled.");
+  const newValue = !config.get<boolean>("toggleSecretScanning");
+
+  await config.update("toggleSecretScanning", newValue, vscode.ConfigurationTarget.Global);
+  await vscode.window.showInformationMessage(`Secret scanning ${newValue ? "enabled" : "disabled"}.`);
 }
 
-export async function enableCommentScanning(): Promise<void> {
+export async function toggleCommentScanning(): Promise<void> {
   const config = vscode.workspace.getConfiguration("gitgerbil");
-  await config.update("enableCommentScanning", true, vscode.ConfigurationTarget.Global);
-  await vscode.window.showInformationMessage("Comment scanning enabled.");
-}
+  const newValue = !config.get<boolean>("toggleCommentScanning");
 
-export async function disableFilePathScanning(): Promise<void> {
-  const config = vscode.workspace.getConfiguration("gitgerbil");
-  await config.update("enableFilePathScanning", false, vscode.ConfigurationTarget.Global);
-  await vscode.window.showInformationMessage("File path scanning disabled.");
-}
-
-export async function disableSecretScanning(): Promise<void> {
-  const config = vscode.workspace.getConfiguration("gitgerbil");
-  await config.update("enableSecretScanning", false, vscode.ConfigurationTarget.Global);
-  await vscode.window.showInformationMessage("Secret scanning disabled.");
-}
-
-export async function disableCommentScanning(): Promise<void> {
-  const config = vscode.workspace.getConfiguration("gitgerbil");
-  await config.update("enableCommentScanning", false, vscode.ConfigurationTarget.Global);
-  await vscode.window.showInformationMessage("Comment scanning disabled.");
+  await config.update("toggleCommentScanning", newValue, vscode.ConfigurationTarget.Global);
+  await vscode.window.showInformationMessage(`Comment scanning ${newValue ? "enabled" : "disabled"}.`);
 }

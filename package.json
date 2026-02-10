@@ -94,28 +94,16 @@
         "title": "GitGerbil: Set Scanned File Types"
       },
       {
-        "command": "gitgerbil.enableFilePathScanning",
-        "title": "GitGerbil: Enable File Path Scanning"
+        "command": "gitgerbil.toggleFilePathScanning",
+        "title": "GitGerbil: Toggle File Path Scanning"
       },
       {
-        "command": "gitgerbil.disableFilePathScanning",
-        "title": "GitGerbil: Disable File Path Scanning"
+        "command": "gitgerbil.toggleSecretScanning",
+        "title": "GitGerbil: Toggle Secret Scanning"
       },
       {
-        "command": "gitgerbil.enableSecretScanning",
-        "title": "GitGerbil: Enable Secret Scanning"
-      },
-      {
-        "command": "gitgerbil.disableSecretScanning",
-        "title": "GitGerbil: Disable Secret Scanning"
-      },
-      {
-        "command": "gitgerbil.enableCommentScanning",
-        "title": "GitGerbil: Enable Comment Scanning"
-      },
-      {
-        "command": "gitgerbil.disableCommentScanning",
-        "title": "GitGerbil: Disable Comment Scanning"
+        "command": "gitgerbil.toggleCommentScanning",
+        "title": "GitGerbil: Toggle Comment Scanning"
       }
     ]
   }
