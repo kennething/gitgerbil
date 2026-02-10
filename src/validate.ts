@@ -35,12 +35,28 @@ export function validateFileName(uri: vscode.Uri): 0 | 1 | 2 {
 type LinePosition = [line: number, col: number];
 export type LineRange = [from: LinePosition, to: LinePosition];
 
+const snakeCaseIndicators = ["access_key", "secret_key", "access_token", "api_key", "api_secret", "app_secret", "application_key", "app_key", "auth_token", "auth_secret"] as const;
+// prettier-ignore
+const indicators = [
+  snakeCaseIndicators, // * snake_case
+  snakeCaseIndicators.map((i) => i.toUpperCase()), // * UPPER_SNAKE_CASE
+  snakeCaseIndicators.map((i) => i.split("_").map((part, index) => (index === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1))).join("")), // * camelCase
+  snakeCaseIndicators.map((i) => i.split("_").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join("")), // * PascalCase
+  snakeCaseIndicators.map((i) => i.replace(/_/g, "-")), // * kebab-case
+  snakeCaseIndicators.map((i) => i.toUpperCase().replace(/_/g, "-")), // * UPPER-KEBAB-CASE
+  snakeCaseIndicators.map((i) => i.replace(/_/g, "")), // * flatcase
+  snakeCaseIndicators.map((i) => i.toUpperCase().replace(/_/g, "")) // * UPPERFLATCASE
+].flat();
+
 /** Scans the content for potential secret keys based on predefined patterns.
  * @param content The content to scan for secret keys.
  * @returns An array of tuples containing the range of the detected secret key and the message.
  */
-export function scanSecretKeys(content: string[]): [range: LineRange, message: string][] {
+export function scanSecretKeys(content: string, isStrict = true): [range: LineRange, message: string][] {
+  const contentLines = content.split("\n");
   const results: [range: LineRange, message: string][] = [];
+
+  if (isStrict && !indicators.some((indicator) => content.includes(indicator))) return [];
 
   const patterns = [
     /[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/, // * jwt
@@ -57,8 +73,8 @@ export function scanSecretKeys(content: string[]): [range: LineRange, message: s
     /(?=(?:[0-9a-fA-F]*[0-9]){4,})[0-9a-fA-F]{16,}/ // generic hex pattern
   ] as const;
 
-  for (let i = 0; i < content.length; i++) {
-    const line = content[i];
+  for (let i = 0; i < contentLines.length; i++) {
+    const line = contentLines[i];
 
     patternMatch: for (const pattern of patterns) {
       const match = pattern.exec(line);
@@ -66,7 +82,7 @@ export function scanSecretKeys(content: string[]): [range: LineRange, message: s
 
       const matchedString = match[0];
       const startIndex = match.index;
-      if (content[i - 1]?.includes("gitgerbil-ignore-line")) break patternMatch;
+      if (contentLines[i - 1]?.includes("gitgerbil-ignore-line")) break patternMatch;
 
       const startLine = i;
       const startCol = startIndex;
@@ -110,7 +126,7 @@ export function checkComments(content: string): [range: LineRange, message: stri
 
       const startIndex = match.index;
       const precedingLines = content.slice(0, startIndex).split("\n");
-      if (precedingLines[precedingLines.length - 2].includes("gitgerbil-ignore-line")) continue;
+      if (precedingLines[precedingLines.length - 2]?.includes("gitgerbil-ignore-line")) continue;
 
       const startLine = precedingLines.length - 1;
       const startCol = precedingLines[precedingLines.length - 1].length;

@@ -25,24 +25,32 @@ export async function handleScannedFileTypes(): Promise<void> {
 
 export async function toggleFilePathScanning(): Promise<void> {
   const config = vscode.workspace.getConfiguration("gitgerbil");
-  const newValue = !config.get<boolean>("toggleFilePathScanning");
+  const newValue = !config.get<boolean>("enableFilePathScanning");
 
-  await config.update("toggleFilePathScanning", newValue, vscode.ConfigurationTarget.Global);
+  await config.update("enableFilePathScanning", newValue, vscode.ConfigurationTarget.Global);
   await vscode.window.showInformationMessage(`File path scanning ${newValue ? "enabled" : "disabled"}.`);
 }
 
 export async function toggleSecretScanning(): Promise<void> {
   const config = vscode.workspace.getConfiguration("gitgerbil");
-  const newValue = !config.get<boolean>("toggleSecretScanning");
+  const newValue = !config.get<boolean>("enableSecretScanning");
 
-  await config.update("toggleSecretScanning", newValue, vscode.ConfigurationTarget.Global);
+  await config.update("enableSecretScanning", newValue, vscode.ConfigurationTarget.Global);
   await vscode.window.showInformationMessage(`Secret scanning ${newValue ? "enabled" : "disabled"}.`);
+}
+
+export async function toggleStrictSecretScanning(): Promise<void> {
+  const config = vscode.workspace.getConfiguration("gitgerbil");
+  const newValue = !config.get<boolean>("enableStrictSecretScanning");
+
+  await config.update("enableStrictSecretScanning", newValue, vscode.ConfigurationTarget.Global);
+  await vscode.window.showInformationMessage(`Strict secret scanning ${newValue ? "enabled" : "disabled"}.`);
 }
 
 export async function toggleCommentScanning(): Promise<void> {
   const config = vscode.workspace.getConfiguration("gitgerbil");
-  const newValue = !config.get<boolean>("toggleCommentScanning");
+  const newValue = !config.get<boolean>("enableCommentScanning");
 
-  await config.update("toggleCommentScanning", newValue, vscode.ConfigurationTarget.Global);
+  await config.update("enableCommentScanning", newValue, vscode.ConfigurationTarget.Global);
   await vscode.window.showInformationMessage(`Comment scanning ${newValue ? "enabled" : "disabled"}.`);
 }

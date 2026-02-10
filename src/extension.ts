@@ -9,6 +9,7 @@ const scannedFiles = new Set<string>();
 const scanningOptions = {
   filePathScanning: true,
   secretScanning: true,
+  strictSecretScanning: true,
   commentScanning: true
 };
 let diagnostics: vscode.DiagnosticCollection;
@@ -47,17 +48,16 @@ async function checkFile(repo: Repository, uri: vscode.Uri): Promise<void> {
 
   const buffer = await vscode.workspace.fs.readFile(uri);
   const content = Buffer.from(buffer).toString("utf-8");
-  const contentLines = content.split("\n");
 
   const fileDiagnostics: vscode.Diagnostic[] = [];
-  const fileIsIgnored = contentLines[0]?.includes("gitgerbil-ignore-file");
+  const fileIsIgnored = content.split("\n")[0]?.includes("gitgerbil-ignore-file");
 
   if (!fileIsIgnored && scanningOptions.filePathScanning) {
     const fileNameViolation = validateFileName(uri);
     if (fileNameViolation) fileDiagnostics.push(createDiagnostic(`${fileNameViolation === 1 ? "File" : "Folder"} name matches a sensitive pattern`, vscode.DiagnosticSeverity.Warning));
   }
   if (!fileIsIgnored && scanningOptions.secretScanning) {
-    const secretResults = scanSecretKeys(contentLines);
+    const secretResults = scanSecretKeys(content, scanningOptions.strictSecretScanning);
     if (secretResults.length) fileDiagnostics.push(...secretResults.map(([range, message]) => createDiagnostic(message, vscode.DiagnosticSeverity.Error, range)));
   }
   if (!fileIsIgnored && scanningOptions.commentScanning) {
@@ -94,6 +94,7 @@ export async function activate(context: vscode.ExtensionContext) {
   scanningOptions.filePathScanning = scanningConfig.get<boolean>("enableFilePathScanning", scanningOptions.filePathScanning);
   scanningOptions.secretScanning = scanningConfig.get<boolean>("enableSecretScanning", scanningOptions.secretScanning);
   scanningOptions.commentScanning = scanningConfig.get<boolean>("enableCommentScanning", scanningOptions.commentScanning);
+  scanningOptions.strictSecretScanning = scanningConfig.get<boolean>("enableStrictSecretScanning", scanningOptions.strictSecretScanning);
 
   // * check settings
   context.subscriptions.push(
@@ -109,7 +110,9 @@ export async function activate(context: vscode.ExtensionContext) {
       } else if (event.affectsConfiguration("gitgerbil.enableFilePathScanning")) scanningOptions.filePathScanning = config.get<boolean>("enableFilePathScanning", scanningOptions.filePathScanning);
       else if (event.affectsConfiguration("gitgerbil.enableSecretScanning")) scanningOptions.secretScanning = config.get<boolean>("enableSecretScanning", scanningOptions.secretScanning);
       else if (event.affectsConfiguration("gitgerbil.enableCommentScanning")) scanningOptions.commentScanning = config.get<boolean>("enableCommentScanning", scanningOptions.commentScanning);
-
+      else if (event.affectsConfiguration("gitgerbil.enableStrictSecretScanning"))
+        scanningOptions.strictSecretScanning = config.get<boolean>("enableStrictSecretScanning", scanningOptions.strictSecretScanning);
+      console.warn(scanningOptions.strictSecretScanning);
       const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
       if (workspaceFolder) checkAllFiles(workspaceFolder.uri);
     })
@@ -120,7 +123,8 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("gitgerbil.setScannedFileTypes", commands.handleScannedFileTypes),
     vscode.commands.registerCommand("gitgerbil.toggleFilePathScanning", commands.toggleFilePathScanning),
     vscode.commands.registerCommand("gitgerbil.toggleSecretScanning", commands.toggleSecretScanning),
-    vscode.commands.registerCommand("gitgerbil.toggleCommentScanning", commands.toggleCommentScanning)
+    vscode.commands.registerCommand("gitgerbil.toggleCommentScanning", commands.toggleCommentScanning),
+    vscode.commands.registerCommand("gitgerbil.toggleStrictSecretScanning", commands.toggleStrictSecretScanning)
   );
 
   async function checkAllFiles(path: vscode.Uri) {
@@ -139,10 +143,6 @@ export async function activate(context: vscode.ExtensionContext) {
     }
   }
 
-  // * check all files on actviation
-  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-  if (workspaceFolder) checkAllFiles(workspaceFolder.uri);
-
   // * add watchers
   const watchFn = (uri: vscode.Uri) => {
     if (uri.path.includes(".gitignore") && workspaceFolder) checkAllFiles(workspaceFolder.uri);
@@ -152,4 +152,8 @@ export async function activate(context: vscode.ExtensionContext) {
   watcher.onDidChange(watchFn);
   watcher.onDidCreate(watchFn);
   context.subscriptions.push(watcher);
+
+  // * check all files on actviation
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  // if (workspaceFolder) await checkAllFiles(workspaceFolder.uri);
 }

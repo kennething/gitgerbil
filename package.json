@@ -81,6 +81,11 @@
           "default": true,
           "description": "Enable or disable secret scanning in tracked git files. If enabled, errors will be shown where potential secrets are found."
         },
+        "gitgerbil.enableStrictSecretScanning": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable strict secret scanning in tracked git files. If enabled, secret scanning will only run if potential secret indicators are found in the content. Does nothing if secret scanning is disabled."
+        },
         "gitgerbil.enableCommentScanning": {
           "type": "boolean",
           "default": true,
@@ -100,6 +105,10 @@
       {
         "command": "gitgerbil.toggleSecretScanning",
         "title": "GitGerbil: Toggle Secret Scanning"
+      },
+      {
+        "command": "gitgerbil.toggleStrictSecretScanning",
+        "title": "GitGerbil: Toggle Strict Secret Scanning"
       },
       {
         "command": "gitgerbil.toggleCommentScanning",
