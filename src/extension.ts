@@ -113,7 +113,7 @@ export async function activate(context: vscode.ExtensionContext) {
       else if (event.affectsConfiguration("gitgerbil.enableCommentScanning")) scanningOptions.commentScanning = config.get<boolean>("enableCommentScanning", scanningOptions.commentScanning);
       else if (event.affectsConfiguration("gitgerbil.enableStrictSecretScanning"))
         scanningOptions.strictSecretScanning = config.get<boolean>("enableStrictSecretScanning", scanningOptions.strictSecretScanning);
-      console.warn(scanningOptions.strictSecretScanning);
+
       const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
       if (workspaceFolder) checkAllFiles(workspaceFolder.uri);
     })
