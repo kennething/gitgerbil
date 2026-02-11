@@ -2,7 +2,7 @@
   "name": "gitgerbil",
   "displayName": "GitGerbil",
   "description": "Scan your project for potential secrets, sensitive information, and less-than-ideal files that you probably shouldn't commit.",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "publisher": "KennethNg",
   "icon": "./src/assets/icon.png",
   "repository": {
@@ -22,8 +22,11 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
+    "prettier-check": "prettier . --check",
+    "unit-test": "mocha ./out/tests/unit",
+    "integration-test": "node ./out/tests/runTests.js",
     "pretest": "npm run compile",
-    "test": "node ./out/test/runTests.js"
+    "test": "npm run unit-test && npm run integration-test"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
@@ -31,7 +34,7 @@
     "@types/vscode": "^1.90.0",
     "@vscode/test-electron": "^2.5.2",
     "mocha": "^11.7.5",
-    "tsx": "^4.21.0",
+    "prettier": "^3.8.1",
     "typescript": "^5.8.3"
   },
   "extensionDependencies": [
@@ -50,6 +53,7 @@
             "jsx",
             "tsx",
             "vue",
+            "svelte",
             "py",
             "rb",
             "go",
@@ -67,7 +71,9 @@
             "json",
             "yaml",
             "yml",
-            "md"
+            "md",
+            "txt",
+            "toml"
           ],
           "description": "List of file extensions that will be scanned if any scanning options are enabled. Dotfiles are automatically included and do not need to be specified here."
         },
@@ -80,6 +86,11 @@
           "type": "boolean",
           "default": true,
           "description": "Enable or disable secret scanning in tracked git files. If enabled, errors will be shown where potential secrets are found."
+        },
+        "gitgerbil.enableStrictSecretScanning": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable strict secret scanning in tracked git files. If enabled, secret scanning will only run if potential secret indicators are found in the content. Does nothing if secret scanning is disabled."
         },
         "gitgerbil.enableCommentScanning": {
           "type": "boolean",
@@ -94,28 +105,20 @@
         "title": "GitGerbil: Set Scanned File Types"
       },
       {
-        "command": "gitgerbil.enableFilePathScanning",
-        "title": "GitGerbil: Enable File Path Scanning"
+        "command": "gitgerbil.toggleFilePathScanning",
+        "title": "GitGerbil: Toggle File Path Scanning"
       },
       {
-        "command": "gitgerbil.disableFilePathScanning",
-        "title": "GitGerbil: Disable File Path Scanning"
+        "command": "gitgerbil.toggleSecretScanning",
+        "title": "GitGerbil: Toggle Secret Scanning"
       },
       {
-        "command": "gitgerbil.enableSecretScanning",
-        "title": "GitGerbil: Enable Secret Scanning"
+        "command": "gitgerbil.toggleStrictSecretScanning",
+        "title": "GitGerbil: Toggle Strict Secret Scanning"
       },
       {
-        "command": "gitgerbil.disableSecretScanning",
-        "title": "GitGerbil: Disable Secret Scanning"
-      },
-      {
-        "command": "gitgerbil.enableCommentScanning",
-        "title": "GitGerbil: Enable Comment Scanning"
-      },
-      {
-        "command": "gitgerbil.disableCommentScanning",
-        "title": "GitGerbil: Disable Comment Scanning"
+        "command": "gitgerbil.toggleCommentScanning",
+        "title": "GitGerbil: Toggle Comment Scanning"
       }
     ]
   }
