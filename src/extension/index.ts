@@ -18,6 +18,7 @@ export async function activate(context: vscode.ExtensionContext) {
   initConfig();
   initConfigWatchers(repo, context);
   initCommandListeners(context);
+  initCodeActions(context);
 
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
   if (workspaceFolder) await checkAllFiles(repo, workspaceFolder.uri);
@@ -67,6 +68,17 @@ function initCommandListeners(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("gitgerbil.toggleCommentScanning", commands.toggleCommentScanning),
     vscode.commands.registerCommand("gitgerbil.toggleStrictSecretScanning", commands.toggleStrictSecretScanning)
   );
+}
+
+function initCodeActions(context: vscode.ExtensionContext) {
+  // prettier-ignore
+  context.subscriptions.push(
+    vscode.languages.registerCodeActionsProvider(
+      { scheme: "file", language: "*" },
+      new CodeActionProvider(),
+      { providedCodeActionKinds: [vscode.CodeActionKind.QuickFix] }
+    )
+  )
 }
 
 function initFileWatchers(repo: Repository, folder: vscode.WorkspaceFolder | undefined, context: vscode.ExtensionContext) {

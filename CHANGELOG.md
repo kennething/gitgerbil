@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- Added quick fix code actions to all diagnostics.
+
 ### Changed
 
 - Updated the README to include `enableStrictSecretScanning` in the list of settings.
