@@ -20,10 +20,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set Node.js version to 22
+      - name: Set Node.js version to 24
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Install dependencies
         run: npm install
@@ -33,7 +33,7 @@ jobs:
 
   test:
     timeout-minutes: 10
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     name: Test
     needs: compile
 
@@ -41,16 +41,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set Node.js version to 22
+      - name: Set Node.js version to 24
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Install dependencies
         run: npm install
 
       - name: Run tests
-        run: xvfb-run -a npm test
+        run: npm test
 
   prettier:
     timeout-minutes: 10
@@ -62,10 +62,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set Node.js version to 22
+      - name: Set Node.js version to 24
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Install dependencies
         run: npm install
