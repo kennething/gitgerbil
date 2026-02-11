@@ -48,6 +48,7 @@ describe("Extension Tests", function () {
     }
 
     console.log(folder);
+    console.log(execSync("ls -la " + folder).toString());
     return folder;
   };
 
