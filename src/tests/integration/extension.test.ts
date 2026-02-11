@@ -1,7 +1,6 @@
 // gitgerbil-ignore-file
 
 import { defaultScannedFiles } from "../../extension";
-import { execSync } from "child_process";
 import { describe } from "mocha";
 import assert from "node:assert";
 import * as vscode from "vscode";

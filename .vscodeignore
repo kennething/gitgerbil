@@ -1,7 +1,7 @@
 .vscode/**
 .vscode-test/**
 src/**
-tests/**
+out/tests/**
 !src/assets/**
 .gitignore
 **/tsconfig.json
@@ -9,3 +9,4 @@ tests/**
 **/*.map
 **/*.ts
 **/.vscode-test.*
+.github/**
