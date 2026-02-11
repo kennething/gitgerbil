@@ -35,8 +35,6 @@ const redkitten6sSupabaseKey =
 const redkitten6sYouTubeKey = "AIzaSyAVQKyYxMrhgHWR8f9LJms0GVpcufhMLwc";
 
 describe("Extension Tests", function () {
-  this.timeout(1000);
-
   const workspace = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
   assert.ok(workspace, "No workspace found");
 
@@ -68,7 +66,6 @@ describe("Extension Tests", function () {
       const folder = createFiles([{ name: "README.md", content: "blah blah blah\n\nnothing to see here\n" }]);
 
       await waitForDiagnostic(`${folder}/README.md`, (diagnostics) => {
-        console.log("a");
         assert.strictEqual(diagnostics.length, 0, "Expected no diagnostics for safe file");
       });
     });
@@ -80,7 +77,6 @@ describe("Extension Tests", function () {
       ]);
 
       await waitForDiagnostic(`${folder}/.env`, (diagnostics) => {
-        console.log("b");
         assert.strictEqual(diagnostics.length, 0, "Expected no diagnostics for .gitignore'd sensitive file");
       });
     });
