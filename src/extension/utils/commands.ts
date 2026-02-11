@@ -1,4 +1,4 @@
-import { defaultScannedFiles } from "./extension";
+import { defaultScannedFiles } from "./globals";
 import * as vscode from "vscode";
 
 export async function handleScannedFileTypes(): Promise<void> {

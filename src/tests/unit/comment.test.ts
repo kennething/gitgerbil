@@ -1,4 +1,4 @@
-import { checkComments } from "../../validate";
+import { checkComments } from "../../extension/utils/validate";
 import { describe, test } from "mocha";
 import assert from "node:assert";
 
@@ -25,6 +25,11 @@ describe("Comment Scanning", function () {
 
   test("should not detect comments without hints", function () {
     const content = `// This is a normal comment\nconst x = 6;\n`;
+    assert.strictEqual(checkComments(content).length, 0);
+  });
+
+  test("should not detect comments without front indicator", function () {
+    const content = `// I should really HACK this\nconst x = 6;\n`;
     assert.strictEqual(checkComments(content).length, 0);
   });
 

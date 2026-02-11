@@ -1,6 +1,6 @@
 // gitgerbil-ignore-file
 
-import { scanSecretKeys } from "../../validate";
+import { scanSecretKeys } from "../../extension/utils/validate";
 import { describe, test } from "mocha";
 import assert from "node:assert";
 
@@ -41,6 +41,11 @@ describe("Secret Detection", function () {
 
   test("should not detect a secret without indicators in strict mode", function () {
     const content = `("${redkitten6sSupabaseKey}");`;
+    assert.strictEqual(scanSecretKeys(content).length, 0);
+  });
+
+  test("should not detect a secret without nearby indicators in strict mode", function () {
+    const content = `const apiKey = config.apiKey;\n\n\n\n\n\n("${redkitten6sSupabaseKey}");\n\n\n\nconst x = 5;\n`;
     assert.strictEqual(scanSecretKeys(content).length, 0);
   });
 

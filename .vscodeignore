@@ -2,7 +2,6 @@
 .vscode-test/**
 src/**
 out/tests/**
-!src/assets/**
 .gitignore
 **/tsconfig.json
 **/eslint.config.mjs
@@ -10,3 +9,5 @@ out/tests/**
 **/*.ts
 **/.vscode-test.*
 .github/**
+
+!src/assets/icon.png

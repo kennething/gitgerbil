@@ -1,3 +1,4 @@
+import { indicators, type LineRange } from "../types";
 import * as vscode from "vscode";
 
 /** Checks if the file name or folder name matches any sensitive patterns.
@@ -27,26 +28,24 @@ export function validateFileName(uri: vscode.Uri): 0 | 1 | 2 {
   if (fileNameMatches) return 1;
 
   const folderName = uri.fsPath.split("/").slice(0, -1).join("/");
-  const folderPatterns = [/node_modules/i, /vendor/i, /dist/i, /build/i, /out/i, /bin/i, /obj/i, /target/i, /logs/i, /tmp/i, /temp/i, /venv/i, /__pycache__/i] as const;
+  const folderPatterns = [
+    /\/node_modules/i,
+    /\/(.?)vendor/i,
+    /\/(.?)dist/i,
+    /\/(.?)build/i,
+    /\/(.?)out/i,
+    /\/(.?)bin/i,
+    /\/(.?)obj/i,
+    /\/(.?)target/i,
+    /\/(.?)logs/i,
+    /\/(.?)tmp/i,
+    /\/(.?)temp/i,
+    /\/(.?)venv/i,
+    /\/__pycache__/i
+  ] as const;
 
   return folderPatterns.some((pattern) => pattern.test(folderName)) ? 2 : 0;
 }
-
-type LinePosition = [line: number, col: number];
-export type LineRange = [from: LinePosition, to: LinePosition];
-
-const snakeCaseIndicators = ["access_key", "secret_key", "access_token", "api_key", "api_secret", "app_secret", "application_key", "app_key", "auth_token", "auth_secret"] as const;
-// prettier-ignore
-const indicators = [
-  snakeCaseIndicators, // * snake_case
-  snakeCaseIndicators.map((i) => i.toUpperCase()), // * UPPER_SNAKE_CASE
-  snakeCaseIndicators.map((i) => i.split("_").map((part, index) => (index === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1))).join("")), // * camelCase
-  snakeCaseIndicators.map((i) => i.split("_").map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join("")), // * PascalCase
-  snakeCaseIndicators.map((i) => i.replace(/_/g, "-")), // * kebab-case
-  snakeCaseIndicators.map((i) => i.toUpperCase().replace(/_/g, "-")), // * UPPER-KEBAB-CASE
-  snakeCaseIndicators.map((i) => i.replace(/_/g, "")), // * flatcase
-  snakeCaseIndicators.map((i) => i.toUpperCase().replace(/_/g, "")) // * UPPERFLATCASE
-].flat();
 
 /** Scans the content for potential secret keys based on predefined patterns.
  * @param content The content to scan for secret keys.
@@ -55,8 +54,6 @@ const indicators = [
 export function scanSecretKeys(content: string, isStrict = true): [range: LineRange, message: string][] {
   const contentLines = content.split("\n");
   const results: [range: LineRange, message: string][] = [];
-
-  if (isStrict && !indicators.some((indicator) => content.includes(indicator))) return [];
 
   const patterns = [
     /[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/, // * jwt
@@ -83,6 +80,9 @@ export function scanSecretKeys(content: string, isStrict = true): [range: LineRa
       const matchedString = match[0];
       const startIndex = match.index;
       if (contentLines[i - 1]?.includes("gitgerbil-ignore-line")) break patternMatch;
+
+      const surroundingLines = contentLines.slice(Math.max(0, i - 5), Math.min(contentLines.length, i + 5)).join("\n");
+      if (isStrict && !indicators.some((indicator) => surroundingLines.includes(indicator))) return [];
 
       const startLine = i;
       const startCol = startIndex;
@@ -120,7 +120,7 @@ export function checkComments(content: string): [range: LineRange, message: stri
   for (const pattern of commentPatterns) {
     for (const match of content.matchAll(pattern)) {
       const comment = match[0];
-      const usedHint = commentHints.find((hint) => comment.includes(hint));
+      const usedHint = commentHints.find((hint) => comment.split(" ").slice(0, 2).join(" ").includes(hint));
       if (!usedHint) continue;
 
       const startIndex = match.index;

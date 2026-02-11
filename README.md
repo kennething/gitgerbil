@@ -36,6 +36,7 @@ This extension adds the following settings:
 - `gitgerbil.scannedFileTypes`: An array of file extensions that GitGerbil will scan for secrets and comments. By default, this includes common programming languages and configuration files.
 - `gitgerbil.enableFilePathScanning`: Whether GitGerbil should read file paths against common sensitive patterns. Default is `true`.
 - `gitgerbil.enableSecretScanning`: Whether GitGerbil should scan file contents for potential secret keys. Default is `true`.
+- `gitgerbil.enableStrictSecretScanning`: When enabled, makes secret scanning skip files that don't have a common secret indicator (like "API_SECRET"). Default is `true`.
 - `gitgerbil.enableCommentScanning`: Whether GitGerbil should scan file contents for TODO and FIXME comments. Default is `true`.
 
 ## Note
