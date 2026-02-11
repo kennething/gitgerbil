@@ -34,7 +34,7 @@ const redkitten6sSupabaseKey =
 const redkitten6sYouTubeKey = "AIzaSyAVQKyYxMrhgHWR8f9LJms0GVpcufhMLwc";
 
 describe("Extension Tests", function () {
-  this.timeout(10000);
+  this.timeout(1000);
 
   const workspace = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
   assert.ok(workspace, "No workspace found");
@@ -68,6 +68,9 @@ describe("Extension Tests", function () {
 
     test("should not give diagnostics when no file path issues", async function () {
       const folder = createFiles([{ name: "README.md", content: "blah blah blah\n\nnothing to see here\n" }]);
+      console.log("aaaaaa " + folder);
+
+      console.log("bbbbb " + vscode.languages.getDiagnostics(vscode.Uri.file(path.join(folder, "README.md"))));
 
       await waitForDiagnostic(`${folder}/README.md`, (diagnostics) => {
         assert.strictEqual(diagnostics.length, 0, "Expected no diagnostics for safe file");
