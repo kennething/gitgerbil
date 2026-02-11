@@ -18,12 +18,13 @@ async function activateExtension() {
 
 async function waitForDiagnostic(fileName: string, callback: (diagnostics: vscode.Diagnostic[]) => void) {
   return new Promise<void>((resolve) => {
-    vscode.languages.onDidChangeDiagnostics((event) => {
+    const listener = vscode.languages.onDidChangeDiagnostics((event) => {
       const uri = event.uris.find((uri) => uri.fsPath.endsWith(fileName));
       if (!uri) return;
 
       const diagnostics = vscode.languages.getDiagnostics(uri);
       callback(diagnostics);
+      listener.dispose();
       resolve();
     });
   });
@@ -47,8 +48,6 @@ describe("Extension Tests", function () {
       fs.writeFileSync(filePath, file.content);
     }
 
-    console.log(folder);
-    console.log(execSync("ls -la " + folder).toString());
     return folder;
   };
 
@@ -69,6 +68,7 @@ describe("Extension Tests", function () {
       const folder = createFiles([{ name: "README.md", content: "blah blah blah\n\nnothing to see here\n" }]);
 
       await waitForDiagnostic(`${folder}/README.md`, (diagnostics) => {
+        console.log("a");
         assert.strictEqual(diagnostics.length, 0, "Expected no diagnostics for safe file");
       });
     });
@@ -80,6 +80,7 @@ describe("Extension Tests", function () {
       ]);
 
       await waitForDiagnostic(`${folder}/.env`, (diagnostics) => {
+        console.log("b");
         assert.strictEqual(diagnostics.length, 0, "Expected no diagnostics for .gitignore'd sensitive file");
       });
     });
