@@ -47,9 +47,7 @@ describe("Extension Tests", function () {
       fs.writeFileSync(filePath, file.content);
     }
 
-    execSync(`git add .`, { cwd: folder });
-    execSync(`git commit -m lgtm`, { cwd: folder });
-
+    console.log(folder);
     return folder;
   };
 
@@ -68,9 +66,6 @@ describe("Extension Tests", function () {
 
     test("should not give diagnostics when no file path issues", async function () {
       const folder = createFiles([{ name: "README.md", content: "blah blah blah\n\nnothing to see here\n" }]);
-      console.log("aaaaaa " + folder);
-
-      console.log("bbbbb " + vscode.languages.getDiagnostics(vscode.Uri.file(path.join(folder, "README.md"))));
 
       await waitForDiagnostic(`${folder}/README.md`, (diagnostics) => {
         assert.strictEqual(diagnostics.length, 0, "Expected no diagnostics for safe file");
