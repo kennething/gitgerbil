@@ -37,6 +37,16 @@ export function createFiles(workspace: string, files: { name: string; content: s
   return folder;
 }
 
+export async function createAndOpenFile(workspace: string, file: { name: string; content: string }): Promise<[folder: string, document: vscode.TextDocument]> {
+  const folder = createFiles(workspace, [file]);
+
+  const uri = vscode.Uri.file(`${folder}/${file.name}`);
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document);
+
+  return [folder, document];
+}
+
 export const redkitten6sSupabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlbG1qa2VxZWttaGt4c3JycndiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1NzE4NTksImV4cCI6MjA4NDE0Nzg1OX0.cbspqjrqcdDkREd3tOlS2TcjknjIzUUeIcX_t8eNYfE";
 export const redkitten6sYouTubeKey = "AIzaSyAVQKyYxMrhgHWR8f9LJms0GVpcufhMLwc";
