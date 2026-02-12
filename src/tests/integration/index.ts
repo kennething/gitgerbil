@@ -1,3 +1,4 @@
+import { activateExtension } from "./utils";
 import * as path from "path";
 import { glob } from "glob";
 import Mocha from "mocha";
@@ -11,6 +12,8 @@ export function run(): Promise<void> {
   const testsRoot = path.resolve(__dirname);
 
   return new Promise(async (resolve, reject) => {
+    await activateExtension();
+
     const files = await glob("**/*.test.js", { cwd: testsRoot });
     files.forEach((file) => mocha.addFile(path.resolve(testsRoot, file)));
 

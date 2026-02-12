@@ -80,7 +80,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
       actions.push(ignoreLineFix, ignoreFileFix);
 
       if (diagnostic.code === DiagnosticCodes.SecretDetected) {
-        const replaceSecretFix = new vscode.CodeAction("Replace potential secret with placeholder", vscode.CodeActionKind.QuickFix);
+        const replaceSecretFix = new vscode.CodeAction("Replace secret with placeholder", vscode.CodeActionKind.QuickFix);
         replaceSecretFix.diagnostics = [diagnostic];
 
         const replaceSecretEdit = new vscode.WorkspaceEdit();

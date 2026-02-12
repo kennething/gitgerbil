@@ -81,7 +81,7 @@ export function scanSecretKeys(content: string, isStrict = true): [range: LineRa
       const startIndex = match.index;
       if (contentLines[i - 1]?.includes("gitgerbil-ignore-line")) break patternMatch;
 
-      const surroundingLines = contentLines.slice(Math.max(0, i - 5), Math.min(contentLines.length, i + 5)).join("\n");
+      const surroundingLines = contentLines.slice(Math.max(0, i - 3), Math.min(contentLines.length, i + 3)).join("\n");
       if (isStrict && !indicators.some((indicator) => surroundingLines.includes(indicator))) return [];
 
       const startLine = i;

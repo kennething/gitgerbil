@@ -1,12 +1,9 @@
 // gitgerbil-ignore-file
 
+import { redkitten6sSupabaseKey, redkitten6sYouTubeKey } from "../integration/utils";
 import { scanSecretKeys } from "../../extension/utils/validate";
 import { describe, test } from "mocha";
 import assert from "node:assert";
-
-const redkitten6sSupabaseKey =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlbG1qa2VxZWttaGt4c3JycndiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1NzE4NTksImV4cCI6MjA4NDE0Nzg1OX0.cbspqjrqcdDkREd3tOlS2TcjknjIzUUeIcX_t8eNYfE";
-const redkitten6sYouTubeKey = "AIzaSyAVQKyYxMrhgHWR8f9LJms0GVpcufhMLwc";
 
 describe("Secret Detection", function () {
   test("should detect a valid secret", function () {

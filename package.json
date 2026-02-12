@@ -2,7 +2,7 @@
   "name": "gitgerbil",
   "displayName": "GitGerbil",
   "description": "Scan your project for potential secrets, sensitive information, and less-than-ideal files that you probably shouldn't commit.",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "publisher": "KennethNg",
   "icon": "./src/assets/icon.png",
   "repository": {
