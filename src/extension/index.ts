@@ -1,4 +1,4 @@
-import { defaultScannedFiles, diagnostics, scannedFiles, scanningOptions, setDiagnostics } from "./utils/globals";
+import { defaultScannedFiles, diagnostics, scannedFiles, scanningOptions, setDiagnostics } from "./globals";
 import { checkAllFiles, checkFile, waitForGitRepo } from "./utils/helper";
 import type { GitExtension, Repository } from "./types/git";
 import { CodeActionProvider } from "./utils/actions";

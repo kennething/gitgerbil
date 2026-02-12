@@ -1,4 +1,4 @@
-import { defaultScannedFiles } from "../../extension/utils/globals";
+import { defaultScannedFiles } from "../../extension/globals";
 import assert from "node:assert";
 import * as vscode from "vscode";
 import path from "path";

@@ -1,4 +1,4 @@
-import { diagnostics, ignoredFiles, scannedFiles, scanningOptions } from "./globals";
+import { diagnostics, ignoredFiles, scannedFiles, scanningOptions } from "../globals";
 import { checkComments, scanSecretKeys, validateFileName } from "./validate";
 import type { API, Repository } from "../types/git";
 import type { LineRange } from "../types/index";
