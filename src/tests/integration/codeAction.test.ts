@@ -24,6 +24,7 @@ describe("Code Actions", function () {
       assert.ok(codeAction, "Expected code action to ignore file");
 
       await vscode.workspace.applyEdit(codeAction.edit!);
+      await vscode.commands.executeCommand(codeAction.command!.command, ...codeAction.command!.arguments!);
 
       assert.ok(document.getText().includes("// gitgerbil-ignore-file"), "Expected file to be ignored for file path scanning");
     });
@@ -44,6 +45,7 @@ describe("Code Actions", function () {
       assert.ok(codeAction, "Expected code action to ignore file");
 
       await vscode.workspace.applyEdit(codeAction.edit!);
+      await vscode.commands.executeCommand(codeAction.command!.command, ...codeAction.command!.arguments!);
 
       assert.ok(document.getText().includes("// gitgerbil-ignore-file"), "Expected file to be ignored for secret scanning");
     });
@@ -62,6 +64,7 @@ describe("Code Actions", function () {
       assert.ok(codeAction, "Expected code action to ignore line");
 
       await vscode.workspace.applyEdit(codeAction.edit!);
+      await vscode.commands.executeCommand(codeAction.command!.command, ...codeAction.command!.arguments!);
 
       assert.ok(document.getText().includes("// gitgerbil-ignore-line"), "Expected line to be ignored for secret scanning");
     });
@@ -80,6 +83,7 @@ describe("Code Actions", function () {
       assert.ok(codeAction, "Expected code action to replace secret with placeholder");
 
       await vscode.workspace.applyEdit(codeAction.edit!);
+      await vscode.commands.executeCommand(codeAction.command!.command, ...codeAction.command!.arguments!);
 
       assert.ok(document.getText().includes('const apiKey = "<secret>";'), "Expected secret to be replaced with placeholder");
     });
@@ -100,6 +104,7 @@ describe("Code Actions", function () {
       assert.ok(codeAction, "Expected code action to ignore file");
 
       await vscode.workspace.applyEdit(codeAction.edit!);
+      await vscode.commands.executeCommand(codeAction.command!.command, ...codeAction.command!.arguments!);
 
       assert.ok(document.getText().includes("// gitgerbil-ignore-file"), "Expected file to be ignored for comment scanning");
     });
@@ -118,6 +123,7 @@ describe("Code Actions", function () {
       assert.ok(codeAction, "Expected code action to ignore line");
 
       await vscode.workspace.applyEdit(codeAction.edit!);
+      await vscode.commands.executeCommand(codeAction.command!.command, ...codeAction.command!.arguments!);
 
       assert.ok(document.getText().includes("// gitgerbil-ignore-line"), "Expected line to be ignored for comment scanning");
     });
@@ -136,6 +142,7 @@ describe("Code Actions", function () {
       assert.ok(codeAction, "Expected code action to delete comment");
 
       await vscode.workspace.applyEdit(codeAction.edit!);
+      await vscode.commands.executeCommand(codeAction.command!.command, ...codeAction.command!.arguments!);
 
       assert.ok(!document.getText().includes("TODO"), "Expected comment to be deleted");
     });

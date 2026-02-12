@@ -1,6 +1,7 @@
 import { defaultScannedFiles, diagnostics, scannedFiles, scanningOptions, setDiagnostics } from "./utils/globals";
-import { checkAllFiles, checkFile, CodeActionProvider, waitForGitRepo } from "./utils/helper";
+import { checkAllFiles, checkFile, waitForGitRepo } from "./utils/helper";
 import type { GitExtension, Repository } from "./types/git";
+import { CodeActionProvider } from "./utils/actions";
 import * as commands from "./utils/commands";
 import * as vscode from "vscode";
 
@@ -66,7 +67,11 @@ function initCommandListeners(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("gitgerbil.toggleFilePathScanning", commands.toggleFilePathScanning),
     vscode.commands.registerCommand("gitgerbil.toggleSecretScanning", commands.toggleSecretScanning),
     vscode.commands.registerCommand("gitgerbil.toggleCommentScanning", commands.toggleCommentScanning),
-    vscode.commands.registerCommand("gitgerbil.toggleStrictSecretScanning", commands.toggleStrictSecretScanning)
+    vscode.commands.registerCommand("gitgerbil.toggleStrictSecretScanning", commands.toggleStrictSecretScanning),
+    vscode.commands.registerCommand("gitgerbil.fixAndSave", async (uri: vscode.Uri) => {
+      const document = await vscode.workspace.openTextDocument(uri);
+      await document.save();
+    })
   );
 }
 

@@ -1,5 +1,4 @@
 import { defaultScannedFiles } from "../../extension/utils/globals";
-import { describe } from "mocha";
 import assert from "node:assert";
 import * as vscode from "vscode";
 import path from "path";
