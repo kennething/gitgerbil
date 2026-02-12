@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated the README to include `enableStrictSecretScanning` in the list of settings.
 - Tweaked regex patterns for all 3 types of scanning to reduce false positives.
-- Reduced package size significantly by removing unnecessary `hero.png` asset from package.
+- Reduced package size significantly by removing unnecessary `hero.png` asset from package, and compressing `icon.png`.
 
 ## [0.1.4] - 2026-02-10
 
