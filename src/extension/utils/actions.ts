@@ -45,6 +45,8 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
     const actions: vscode.CodeAction[] = [];
 
     for (const diagnostic of context.diagnostics) {
+      if (diagnostic.source !== "GitGerbil") continue;
+
       switch (diagnostic.code) {
         case DiagnosticCodes.SecretDetected:
         case DiagnosticCodes.CommentDetected:
