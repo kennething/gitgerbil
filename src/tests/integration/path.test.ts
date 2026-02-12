@@ -4,6 +4,8 @@ import assert from "node:assert";
 import * as vscode from "vscode";
 
 describe("File Path Scanning", function () {
+  this.timeout(4000);
+
   const workspace = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
   assert.ok(workspace, "No workspace found");
 

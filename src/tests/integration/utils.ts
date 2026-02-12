@@ -50,10 +50,10 @@ export const redkitten6sSupabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZlbG1qa2VxZWttaGt4c3JycndiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1NzE4NTksImV4cCI6MjA4NDE0Nzg1OX0.cbspqjrqcdDkREd3tOlS2TcjknjIzUUeIcX_t8eNYfE";
 export const redkitten6sYouTubeKey = "AIzaSyAVQKyYxMrhgHWR8f9LJms0GVpcufhMLwc";
 
-export function resetConfig() {
-  vscode.workspace.getConfiguration("gitgerbil").update("scannedFileTypes", defaultScannedFiles, vscode.ConfigurationTarget.Global);
-  vscode.workspace.getConfiguration("gitgerbil").update("enableFilePathScanning", true, vscode.ConfigurationTarget.Global);
-  vscode.workspace.getConfiguration("gitgerbil").update("enableSecretScanning", true, vscode.ConfigurationTarget.Global);
-  vscode.workspace.getConfiguration("gitgerbil").update("enableStrictSecretScanning", true, vscode.ConfigurationTarget.Global);
-  vscode.workspace.getConfiguration("gitgerbil").update("enableCommentScanning", true, vscode.ConfigurationTarget.Global);
+export async function resetConfig() {
+  await vscode.workspace.getConfiguration("gitgerbil").update("scannedFileTypes", defaultScannedFiles, vscode.ConfigurationTarget.Global);
+  await vscode.workspace.getConfiguration("gitgerbil").update("enableFilePathScanning", true, vscode.ConfigurationTarget.Global);
+  await vscode.workspace.getConfiguration("gitgerbil").update("enableSecretScanning", true, vscode.ConfigurationTarget.Global);
+  await vscode.workspace.getConfiguration("gitgerbil").update("enableStrictSecretScanning", true, vscode.ConfigurationTarget.Global);
+  await vscode.workspace.getConfiguration("gitgerbil").update("enableCommentScanning", true, vscode.ConfigurationTarget.Global);
 }
