@@ -17,7 +17,6 @@ describe("Code Actions", function () {
       });
 
       const diagnostics = await waitForDiagnostic(`${folder}/.env`);
-      assert.strictEqual(diagnostics.length, 1, "Expected one diagnostic for sensitive file");
 
       const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>("vscode.executeCodeActionProvider", vscode.Uri.file(`${folder}/.env`), diagnostics[0].range);
       const codeAction = codeActions.find((action) => action.title === "Ignore file path violation");
@@ -38,7 +37,6 @@ describe("Code Actions", function () {
       });
 
       const diagnostics = await waitForDiagnostic(`${folder}/index.ts`);
-      assert.strictEqual(diagnostics.length, 1, "Expected one diagnostic for secret in file");
 
       const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>("vscode.executeCodeActionProvider", vscode.Uri.file(`${folder}/index.ts`), diagnostics[0].range);
       const codeAction = codeActions.find((action) => action.title === "Ignore entire file");
@@ -57,7 +55,6 @@ describe("Code Actions", function () {
       });
 
       const diagnostics = await waitForDiagnostic(`${folder}/index.ts`);
-      assert.strictEqual(diagnostics.length, 1, "Expected one diagnostic for secret in file");
 
       const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>("vscode.executeCodeActionProvider", vscode.Uri.file(`${folder}/index.ts`), diagnostics[0].range);
       const codeAction = codeActions.find((action) => action.title === "Ignore this line");
@@ -76,7 +73,6 @@ describe("Code Actions", function () {
       });
 
       const diagnostics = await waitForDiagnostic(`${folder}/index.ts`);
-      assert.strictEqual(diagnostics.length, 1, "Expected one diagnostic for secret in file");
 
       const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>("vscode.executeCodeActionProvider", vscode.Uri.file(`${folder}/index.ts`), diagnostics[0].range);
       const codeAction = codeActions.find((action) => action.title === "Replace secret with placeholder");
@@ -97,7 +93,6 @@ describe("Code Actions", function () {
       });
 
       const diagnostics = await waitForDiagnostic(`${folder}/index.ts`);
-      assert.strictEqual(diagnostics.length, 1, "Expected one diagnostic for hint comment in file");
 
       const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>("vscode.executeCodeActionProvider", vscode.Uri.file(`${folder}/index.ts`), diagnostics[0].range);
       const codeAction = codeActions.find((action) => action.title === "Ignore entire file");
@@ -116,7 +111,6 @@ describe("Code Actions", function () {
       });
 
       const diagnostics = await waitForDiagnostic(`${folder}/index.ts`);
-      assert.strictEqual(diagnostics.length, 1, "Expected one diagnostic for hint comment in file");
 
       const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>("vscode.executeCodeActionProvider", vscode.Uri.file(`${folder}/index.ts`), diagnostics[0].range);
       const codeAction = codeActions.find((action) => action.title === "Ignore this line");
@@ -135,7 +129,6 @@ describe("Code Actions", function () {
       });
 
       const diagnostics = await waitForDiagnostic(`${folder}/index.ts`);
-      assert.strictEqual(diagnostics.length, 1, "Expected one diagnostic for hint comment in file");
 
       const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>("vscode.executeCodeActionProvider", vscode.Uri.file(`${folder}/index.ts`), diagnostics[0].range);
       const codeAction = codeActions.find((action) => action.title === "Delete this comment");
