@@ -1,7 +1,16 @@
 import { defaultScannedFiles } from "../globals";
 import * as vscode from "vscode";
 
-export async function handleScannedFileTypes(): Promise<void> {
+async function toggleSettingCommand(configName: string, infoMessage: (newValue: boolean, undoIsSkipped: boolean) => string, skipUndo = false) {
+  const config = vscode.workspace.getConfiguration("gitgerbil");
+  const newValue = !config.get<boolean>(configName);
+
+  await config.update(configName, newValue, vscode.ConfigurationTarget.Global);
+  const disposable = skipUndo ? await vscode.window.showInformationMessage(infoMessage(newValue, true)) : await vscode.window.showInformationMessage(infoMessage(newValue, false), "Undo");
+  if (disposable === "Undo") toggleSettingCommand(configName, infoMessage, true);
+}
+
+export async function handleScannedFileTypes(skipUndo = false): Promise<void> {
   const config = vscode.workspace.getConfiguration("gitgerbil");
   const value = config.get<string[]>("scannedFileTypes");
   if (!value) return void vscode.window.showErrorMessage("Failed to get scanned file types from configuration.");
@@ -20,37 +29,38 @@ export async function handleScannedFileTypes(): Promise<void> {
   const newValue = input.length === 0 ? (defaultScannedFiles as unknown as string[]) : input.split(",").map((ext) => ext.trim());
 
   await config.update("scannedFileTypes", newValue, vscode.ConfigurationTarget.Global);
-  vscode.window.showInformationMessage(`Scanned file extensions updated.`);
+  const disposable = skipUndo ? await vscode.window.showInformationMessage(`Scanned file extensions updated.`) : await vscode.window.showInformationMessage(`Scanned file extensions updated.`, "Undo");
+  if (disposable === "Undo") handleScannedFileTypes(true);
 }
 
 export async function toggleFilePathScanning(): Promise<void> {
-  const config = vscode.workspace.getConfiguration("gitgerbil");
-  const newValue = !config.get<boolean>("enableFilePathScanning");
-
-  await config.update("enableFilePathScanning", newValue, vscode.ConfigurationTarget.Global);
-  await vscode.window.showInformationMessage(`File path scanning ${newValue ? "enabled" : "disabled"}.`);
+  // prettier-ignore
+  await toggleSettingCommand(
+    "enableFilePathScanning",
+    (newValue, undoIsSkipped) => `File path scanning ${undoIsSkipped ? "re-" : ""}${newValue ? "enabled" : "disabled"}.`
+  );
 }
 
 export async function toggleSecretScanning(): Promise<void> {
-  const config = vscode.workspace.getConfiguration("gitgerbil");
-  const newValue = !config.get<boolean>("enableSecretScanning");
-
-  await config.update("enableSecretScanning", newValue, vscode.ConfigurationTarget.Global);
-  await vscode.window.showInformationMessage(`Secret scanning ${newValue ? "enabled" : "disabled"}.`);
+  // prettier-ignore
+  await toggleSettingCommand(
+    "enableSecretScanning",
+    (newValue, undoIsSkipped) => `Secret scanning ${undoIsSkipped ? "re-" : ""}${newValue ? "enabled" : "disabled"}.`
+  );
 }
 
 export async function toggleStrictSecretScanning(): Promise<void> {
-  const config = vscode.workspace.getConfiguration("gitgerbil");
-  const newValue = !config.get<boolean>("enableStrictSecretScanning");
-
-  await config.update("enableStrictSecretScanning", newValue, vscode.ConfigurationTarget.Global);
-  await vscode.window.showInformationMessage(`Strict secret scanning ${newValue ? "enabled" : "disabled"}.`);
+  // prettier-ignore
+  await toggleSettingCommand(
+    "enableStrictSecretScanning",
+    (newValue, undoIsSkipped) => `Strict secret scanning ${undoIsSkipped ? "re-" : ""}${newValue ? "enabled" : "disabled"}.`
+  );
 }
 
 export async function toggleCommentScanning(): Promise<void> {
-  const config = vscode.workspace.getConfiguration("gitgerbil");
-  const newValue = !config.get<boolean>("enableCommentScanning");
-
-  await config.update("enableCommentScanning", newValue, vscode.ConfigurationTarget.Global);
-  await vscode.window.showInformationMessage(`Comment scanning ${newValue ? "enabled" : "disabled"}.`);
+  // prettier-ignore
+  await toggleSettingCommand(
+    "enableCommentScanning",
+    (newValue, undoIsSkipped) => `Comment scanning ${undoIsSkipped ? "re-" : ""}${newValue ? "enabled" : "disabled"}.`
+  );
 }

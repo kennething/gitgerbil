@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Added options to quick fix code actions to disable the relevant type of scanning globally.
+- Added undo functionality to all commands that update settings.
 
 ## [0.1.6] - 2026-02-12
 
