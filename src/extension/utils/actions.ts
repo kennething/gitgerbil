@@ -59,11 +59,13 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
 
       if (diagnostic.code === DiagnosticCodes.CommentDetected) actions.push(this.getDeleteLineAction(document, diagnostic, "Delete this comment"));
       else if (diagnostic.code === DiagnosticCodes.SecretDetected) actions.push(this.replaceTextAction(document, diagnostic, "Replace secret with placeholder", "<secret>"));
+
+      actions.push(...this.disableScanningAction(document, diagnostic, diagnostic.code as DiagnosticCodes));
     }
     return actions;
   }
 
-  private generateAction(document: vscode.TextDocument, diagnostic: vscode.Diagnostic, title: string, editCallback: (edit: vscode.WorkspaceEdit) => void, isPreferred = false): vscode.CodeAction {
+  private generateEditAction(document: vscode.TextDocument, diagnostic: vscode.Diagnostic, title: string, editCallback: (edit: vscode.WorkspaceEdit) => void, isPreferred = false): vscode.CodeAction {
     const action = new vscode.CodeAction(title, vscode.CodeActionKind.QuickFix);
     action.diagnostics = [diagnostic];
 
@@ -82,21 +84,21 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
 
   /** Adds `// gitgerbil-ignore-file` to the beginning of the diagnostic file */
   private getIgnoreFileAction(document: vscode.TextDocument, diagnostic: vscode.Diagnostic, title: string): vscode.CodeAction {
-    return this.generateAction(document, diagnostic, title, (edit) => {
+    return this.generateEditAction(document, diagnostic, title, (edit) => {
       edit.insert(document.uri, new vscode.Position(0, 0), getCommentByLanguage(document.languageId, document.lineAt(0), "gitgerbil-ignore-file"));
     });
   }
 
   /** Adds `// gitgerbil-ignore-line` above the diagnostic line */
   private getIgnoreLineAction(document: vscode.TextDocument, diagnostic: vscode.Diagnostic, title: string): vscode.CodeAction {
-    return this.generateAction(document, diagnostic, title, (edit) => {
+    return this.generateEditAction(document, diagnostic, title, (edit) => {
       edit.insert(document.uri, diagnostic.range.start, getCommentByLanguage(document.languageId, document.lineAt(diagnostic.range.start.line), "gitgerbil-ignore-line"));
     });
   }
 
   /** Deletes the entire line containing the diagnostic */
   private getDeleteLineAction(document: vscode.TextDocument, diagnostic: vscode.Diagnostic, title: string): vscode.CodeAction {
-    return this.generateAction(
+    return this.generateEditAction(
       document,
       diagnostic,
       title,
@@ -107,6 +109,38 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
 
   /** Replaces the text within the diagnostic range with the specified replacement string */
   private replaceTextAction(document: vscode.TextDocument, diagnostic: vscode.Diagnostic, title: string, replacement: string): vscode.CodeAction {
-    return this.generateAction(document, diagnostic, title, (edit) => edit.replace(document.uri, diagnostic.range, replacement), true);
+    return this.generateEditAction(document, diagnostic, title, (edit) => edit.replace(document.uri, diagnostic.range, replacement), true);
+  }
+
+  private disableScanningAction(document: vscode.TextDocument, diagnostic: vscode.Diagnostic, diagnosticCode: DiagnosticCodes): vscode.CodeAction[] {
+    const titles = {
+      [DiagnosticCodes.FilePathViolation]: "Disable file path scanning",
+      [DiagnosticCodes.SecretDetected]: "Disable secret scanning",
+      [DiagnosticCodes.CommentDetected]: "Disable comment scanning"
+    } as const satisfies Record<DiagnosticCodes, string>;
+
+    const commandNames = {
+      [DiagnosticCodes.FilePathViolation]: "toggleFilePathScanning",
+      [DiagnosticCodes.SecretDetected]: "toggleSecretScanning",
+      [DiagnosticCodes.CommentDetected]: "toggleCommentScanning"
+    } as const satisfies Record<DiagnosticCodes, keyof vscode.WorkspaceConfiguration>;
+
+    const action = new vscode.CodeAction(titles[diagnosticCode], vscode.CodeActionKind.QuickFix);
+    action.diagnostics = [diagnostic];
+    action.command = {
+      command: `gitgerbil.${commandNames[diagnosticCode]}`,
+      title: titles[diagnosticCode]
+    };
+
+    if (diagnosticCode !== DiagnosticCodes.SecretDetected || !vscode.workspace.getConfiguration("gitgerbil").get<boolean>("enableStrictSecretScanning")) return [action];
+
+    const strictAction = new vscode.CodeAction("Disable strict secret scanning", vscode.CodeActionKind.QuickFix);
+    strictAction.diagnostics = [diagnostic];
+    strictAction.command = {
+      command: "gitgerbil.toggleStrictSecretScanning",
+      title: "Disable strict secret scanning"
+    };
+
+    return [strictAction, action];
   }
 }
