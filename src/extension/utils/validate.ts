@@ -33,7 +33,6 @@ export function validateFileName(uri: vscode.Uri): 0 | 1 | 2 {
     /\/(.?)vendor/i,
     /\/(.?)dist/i,
     /\/(.?)build/i,
-    /\/(.?)out/i,
     /\/(.?)bin/i,
     /\/(.?)obj/i,
     /\/(.?)target/i,

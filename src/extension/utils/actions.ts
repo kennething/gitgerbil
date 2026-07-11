@@ -1,4 +1,5 @@
 import { DiagnosticCodes } from "./helper";
+import { scannedFiles } from "../globals";
 import * as vscode from "vscode";
 
 const commentByLanguage = {
@@ -85,7 +86,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
   /** Adds `// gitgerbil-ignore-file` to the beginning of the diagnostic file */
   private getIgnoreFileAction(document: vscode.TextDocument, diagnostic: vscode.Diagnostic, title: string): vscode.CodeAction {
     return this.generateEditAction(document, diagnostic, title, (edit) => {
-      edit.insert(document.uri, new vscode.Position(0, 0), getCommentByLanguage(document.languageId, document.lineAt(0), "gitgerbil-ignore-file"));
+      edit.insert(document.uri, new vscode.Position(0, 0), getCommentByLanguage(document.languageId, document.lineAt(0), "gitgerbil-ignore-file\n"));
     });
   }
 
@@ -113,6 +114,8 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
   }
 
   private disableScanningAction(document: vscode.TextDocument, diagnostic: vscode.Diagnostic, diagnosticCode: DiagnosticCodes): vscode.CodeAction[] {
+    const actions: vscode.CodeAction[] = [];
+
     const titles = {
       [DiagnosticCodes.FilePathViolation]: "Disable file path scanning",
       [DiagnosticCodes.SecretDetected]: "Disable secret scanning",
@@ -125,14 +128,27 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
       [DiagnosticCodes.CommentDetected]: "toggleCommentScanning"
     } as const satisfies Record<DiagnosticCodes, keyof vscode.WorkspaceConfiguration>;
 
-    const action = new vscode.CodeAction(titles[diagnosticCode], vscode.CodeActionKind.QuickFix);
-    action.diagnostics = [diagnostic];
-    action.command = {
+    const disableAction = new vscode.CodeAction(titles[diagnosticCode], vscode.CodeActionKind.QuickFix);
+    disableAction.diagnostics = [diagnostic];
+    disableAction.command = {
       command: `gitgerbil.${commandNames[diagnosticCode]}`,
       title: titles[diagnosticCode]
     };
+    actions.push(disableAction);
 
-    if (diagnosticCode !== DiagnosticCodes.SecretDetected || !vscode.workspace.getConfiguration("gitgerbil").get<boolean>("enableStrictSecretScanning")) return [action];
+    const fileExtension = document.fileName.split(".").pop();
+    if (fileExtension && scannedFiles.has(fileExtension)) {
+      const disableFileAction = new vscode.CodeAction("Disable scanning for this file type", vscode.CodeActionKind.QuickFix);
+      disableFileAction.diagnostics = [diagnostic];
+      disableFileAction.command = {
+        command: "gitgerbil.setScannedFileTypes",
+        title: "Disable scanning for this file type",
+        arguments: [Array.from(scannedFiles).filter((ext) => ext !== fileExtension)]
+      };
+      actions.unshift(disableFileAction);
+    }
+
+    if (diagnosticCode !== DiagnosticCodes.SecretDetected || !vscode.workspace.getConfiguration("gitgerbil").get<boolean>("enableStrictSecretScanning")) return actions;
 
     const strictAction = new vscode.CodeAction("Disable strict secret scanning", vscode.CodeActionKind.QuickFix);
     strictAction.diagnostics = [diagnostic];
@@ -140,7 +156,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
       command: "gitgerbil.toggleStrictSecretScanning",
       title: "Disable strict secret scanning"
     };
-
-    return [strictAction, action];
+    actions.unshift(strictAction);
+    return actions;
   }
 }

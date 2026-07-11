@@ -1,3 +1,5 @@
+// gitgerbil-ignore-file
+
 import { checkComments } from "../../extension/utils/validate";
 import { describe, test } from "mocha";
 import assert from "node:assert";

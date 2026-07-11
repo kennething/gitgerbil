@@ -1,3 +1,5 @@
+// gitgerbil-ignore-file
+
 import { createAndOpenFile, redkitten6sSupabaseKey, resetConfig, waitForDiagnostic } from "./utils";
 import { describe } from "mocha";
 import assert from "node:assert";
@@ -26,6 +28,23 @@ describe("Code Actions", function () {
       await vscode.commands.executeCommand(codeAction.command!.command, ...codeAction.command!.arguments!);
 
       assert.ok(document.getText().includes("// gitgerbil-ignore-file"), "Expected file to be ignored for file path scanning");
+    });
+
+    test("should provide disable file path scanning action", async function () {
+      const [folder, document] = await createAndOpenFile(workspace, {
+        name: ".env",
+        content: `super secret env variables hehe\n`
+      });
+
+      const diagnostics = await waitForDiagnostic(`${folder}/.env`);
+
+      const codeActions = await vscode.commands.executeCommand<vscode.CodeAction[]>("vscode.executeCodeActionProvider", vscode.Uri.file(`${folder}/.env`), diagnostics[0].range);
+      const codeAction = codeActions.find((action) => action.title === "Disable file path scanning");
+      assert.ok(codeAction, "Expected code action to disable file path scanning for .env files");
+
+      await vscode.commands.executeCommand(codeAction.command!.command);
+
+      assert.strictEqual(vscode.workspace.getConfiguration("gitgerbil").get("enableFilePathScanning"), false, "Expected file path scanning to be disabled");
     });
   });
 

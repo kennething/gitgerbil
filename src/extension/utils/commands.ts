@@ -10,27 +10,30 @@ async function toggleSettingCommand(configName: string, infoMessage: (newValue: 
   if (disposable === "Undo") toggleSettingCommand(configName, infoMessage, true);
 }
 
-export async function handleScannedFileTypes(skipUndo = false): Promise<void> {
+export async function handleScannedFileTypes(inputValue?: string[], skipUndo = false): Promise<void> {
   const config = vscode.workspace.getConfiguration("gitgerbil");
   const value = config.get<string[]>("scannedFileTypes");
   if (!value) return void vscode.window.showErrorMessage("Failed to get scanned file types from configuration.");
 
-  const input = await vscode.window.showInputBox({
-    prompt: "Enter file extensions to scan, separated by commas",
-    value: value.join(", "),
-    validateInput: (value) => {
-      if (!value) return;
-      const extensions = value.split(",").map((ext) => ext.trim());
-      if (extensions.some((ext) => !/^[a-zA-Z0-9]+$/.test(ext))) return "File extensions must be alphanumeric and cannot contain dots or spaces";
-    }
-  });
-  if (input === undefined) return;
-
-  const newValue = input.length === 0 ? (defaultScannedFiles as unknown as string[]) : input.split(",").map((ext) => ext.trim());
+  let newValue: string[];
+  if (inputValue) newValue = inputValue;
+  else {
+    const input = await vscode.window.showInputBox({
+      prompt: "Enter file extensions to scan, separated by commas",
+      value: value.join(", "),
+      validateInput: (value) => {
+        if (!value) return;
+        const extensions = value.split(",").map((ext) => ext.trim());
+        if (extensions.some((ext) => !/^[a-zA-Z0-9]+$/.test(ext))) return "File extensions must be alphanumeric and cannot contain dots or spaces";
+      }
+    });
+    if (input === undefined) return;
+    newValue = input.length === 0 ? (defaultScannedFiles as unknown as string[]) : input.split(",").map((ext) => ext.trim());
+  }
 
   await config.update("scannedFileTypes", newValue, vscode.ConfigurationTarget.Global);
   const disposable = skipUndo ? await vscode.window.showInformationMessage(`Scanned file extensions updated.`) : await vscode.window.showInformationMessage(`Scanned file extensions updated.`, "Undo");
-  if (disposable === "Undo") handleScannedFileTypes(true);
+  if (disposable === "Undo") handleScannedFileTypes(value, true);
 }
 
 export async function toggleFilePathScanning(): Promise<void> {

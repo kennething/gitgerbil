@@ -1,3 +1,5 @@
+// gitgerbil-ignore-file
+
 import { createFiles, resetConfig, waitForDiagnostic } from "./utils";
 import { describe } from "mocha";
 import assert from "node:assert";
