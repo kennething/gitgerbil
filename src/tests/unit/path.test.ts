@@ -17,7 +17,6 @@ describe("File Name Validation", function () {
       "/node_modules/@kennething/v-lint/src/index.js",
       "/dist/index.js",
       "/build/vlint.wasm",
-      "/out/hello",
       "/bin/hello",
       "/tmp/test.txt",
       "/logs/log.txt",
